@@ -535,9 +535,6 @@ $output = "StartLayout.xml"
 Import-StartLayout -LayoutPath $output -MountPath 'C:\'
 Write-Output "Adding New Start Menu and Taskbar Items"
 Copy-Item $output -Destination $env:LOCALAPPDATA\Microsoft\Windows\Shell\LayoutModification.xml
-If (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount' -Name '$start.tilegrid$windows.data.curatedtilecollection.root' -ErrorAction SilentlyContinue) {
-	Remove-Item 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$start.tilegrid$windows.data.curatedtilecollection.root' -Force -Recurse
-}
 Remove-Item 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$de$*$start.tilegrid$windows.data.curatedtilecollection.tilecollection' -Force -Recurse | Out-Null
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Force | Out-Null
 New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoPinningStoreToTaskbar" -Value '1' -PropertyType 'DWORD' | Out-Null
@@ -545,7 +542,10 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Nam
 #Set Default Applications
 Write-Output "Setting Default Application Associations"
 dism /online /Import-DefaultAppAssociations:"DefaultAssociations.xml" | Out-Null
+Copy-Item -Path "DefaultAssociations.xml" -Destination "C:\Windows\System32\DefaultAssociations.xml" | Out-Null
 Copy-Item -Path "OEMDefaultAssociations.xml" -Destination "C:\Windows\System32\OEMDefaultAssociations.xml" | Out-Null
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force | Out-Null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "DefaultAssociationsConfiguration" -Value 'C:\Windows\System32\OEMDefaultAssociations.xml' -PropertyType 'STRING' | Out-Null
 
 #Disable OneDrive
 Write-Output "Disabling OneDrive Startup"
@@ -618,27 +618,3 @@ Else {
 		}	
 	}
 }#>
-
-<#
-What is working
-	Removing Windows apps
-	Disable suggested apps
-	Remove Cortana From Taskbar
-	Remove People From Taskbar
-	Add Computer icon to the desktop
-	Explorer PC View
-	Remove pinned items from the start menu
-	Install apps (Chrome, Adobe, RCS Agent)
-	Install updates
-	Remove Edge desktop link
-	Hidden file settings
-	Remove Task View from taskbar
-	Add User Folder to the desktop
-	Remove Store from taskbar
-	Set power settings
-	Disables OneDrive
-	Remove Edge from the taskbar
-
-Not setting new profile settings
-	Default Apps changing back
-#>
