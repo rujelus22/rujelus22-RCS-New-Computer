@@ -1,0 +1,1 @@
+powershell -executionpolicy unrestricted -File "RCS - New Computer Setup.ps1"
